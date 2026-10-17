@@ -1,0 +1,16 @@
+def validar_alocacao_docente(professor_id, dia_semana, hora_inicio, hora_fim):
+    # 1. Busca no banco de dados se o professor já tem aula no mesmo dia
+    # onde os horários se sobrepõem
+    conflito = supabase.table("ofertas") \
+        .select("*") \
+        .eq("professor_id", professor_id) \
+        .eq("dia_semana", dia_semana) \
+        .lt("horario_inicio", hora_fim) \
+        .gt("horario_fim", hora_inicio) \
+        .execute()
+
+    # 2. Se encontrar algum registro, lança um erro e impede o cadastro
+    if len(conflito.data) > 0:
+        raise Exception("Erro: O professor já possui aula alocada neste mesmo horário!")
+    
+    return True
